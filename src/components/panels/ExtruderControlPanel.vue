@@ -70,7 +70,13 @@
                             }"
                             dense
                             @click="doSend(tool.name)">
-                            {{ tool.name }}
+                            <span>{{ tool.name }}</span>
+                            <v-spacer></v-spacer>
+                            <span
+                                v-if="tool.color != null"
+                                class="_currentState"
+                                :style="currentStateStyle"
+                                @click="boolDialog = true"></span>
                         </v-btn>
                     </v-item-group>
                 </v-container>
