@@ -2,7 +2,7 @@
     <panel
         v-if="klipperReadyForGui"
         :icon="mdiGamepad"
-        :title="$t('Panels.ToolheadControlPanel.Headline')"
+        :title="$t(headline)"
         :collapsible="true"
         card-class="toolhead-control-panel">
         <!-- PANEL-HEADER 3-DOT-MENU -->
@@ -175,14 +175,12 @@ export default class ToolheadControlPanel extends Mixins(BaseMixin, ControlMixin
         return this.existsBedScrews || this.existsBedTilt || this.existsDeltaCalibrate || this.existsScrewsTilt
     }
 
+    get headline(): string {
+        return this.isIdex ? 'Panels.ToolheadControlPanel.IdexHeadline' : 'Panels.ToolheadControlPanel.Headline'
+    }
+
     get isIdex(): boolean {
-        try {
-            const dualCarriage = this.$store.state.printer.configfile?.settings?.dual_carriage
-            if (dualCarriage) return true
-            return false
-        } catch {
-            return false
-        }
+        return 'dual_carriage' in this.$store.state.printer
     }
 }
 </script>

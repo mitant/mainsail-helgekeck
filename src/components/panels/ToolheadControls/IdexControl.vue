@@ -2,40 +2,48 @@
     <v-container class="py-0">
         <v-item-group class="_btn-group py-0">
             <v-btn
-                :class="idexMode != 'copy' && idexMode != 'mirror' ? 'primary--text' : {}"
+                class="_btn-qs flex-grow-1 px-1"
                 :disabled="isPrinting || !homedAxes.includes('xyz')"
+                :loading="loadings.includes('idex_single')"
                 :style="{
-                    'background-color': idexMode != 'copy' && idexMode != 'mirror' ? 'var(--color-primary)' : '',
-                    color: idexMode != 'copy' && idexMode != 'mirror' ? 'primary' : '',
+                    'background-color': idexMode != 'copy' && idexMode != 'mirror' ? primaryColor : '',
+                    color: idexMode != 'copy' && idexMode != 'mirror' ? primaryTextColor : '',
                 }"
                 dense
-                class="_btn-qs flex-grow-1 px-1"
                 @click="doSend('IDEX_SINGLE')">
-                SINGLE MODE
+                {{ $t('Panels.ToolheadControlPanel.SingleMode') }}
             </v-btn>
             <v-btn
-                :class="idexMode == 'copy' ? 'primary--text' : {}"
+                class="_btn-qs flex-grow-1 px-1"
                 :disabled="isPrinting || !homedAxes.includes('xyz')"
+                :loading="loadings.includes('idex_copy')"
                 :style="{
-                    'background-color': idexMode == 'copy' ? 'var(--color-primary)' : '',
-                    color: idexMode == 'copy' ? 'primary' : '',
+                    'background-color': idexMode == 'copy' ? primaryColor : '',
+                    color: idexMode == 'copy' ? primaryTextColor : '',
                 }"
                 dense
-                class="_btn-qs flex-grow-1 px-1"
                 @click="doSend('IDEX_COPY')">
-                {{idexMode}}
+                {{ $t('Panels.ToolheadControlPanel.CopyMode') }}
             </v-btn>
             <v-btn
-                :class="idexMode == 'mirror' ? 'primary--text' : {}"
+                class="_btn-qs flex-grow-1 px-1"
                 :disabled="isPrinting || !homedAxes.includes('xyz')"
+                :loading="loadings.includes('idex_mirror')"
                 :style="{
-                    'background-color': idexMode == 'mirror' ? 'var(--color-primary)' : '',
-                    color: idexMode == 'mirror' ? 'primary' : '',
+                    'background-color': idexMode == 'mirror' ? primaryColor : '',
+                    color: idexMode == 'mirror' ? primaryTextColor : '',
                 }"
                 dense
-                class="_btn-qs flex-grow-1 px-1"
                 @click="doSend('IDEX_MIRROR')">
-                MIRROR MODE
+                {{ $t('Panels.ToolheadControlPanel.MirrorMode') }}
+            </v-btn>
+            <v-btn
+                class="_btn-qs flex-grow-1 px-1"
+                :disabled="isPrinting || !homedAxes.includes('xyz') || idexMode == 'copy' || idexMode == 'mirror'"
+                :loading="loadings.includes('idex_park')"
+                dense
+                @click="doSend('IDEX_PARK')">
+                {{ $t('Panels.ToolheadControlPanel.Park') }}
             </v-btn>
         </v-item-group>
     </v-container>
@@ -48,7 +56,6 @@ import ControlMixin from '@/components/mixins/control'
 
 @Component
 export default class IdexControl extends Mixins(BaseMixin, ControlMixin) {
-
     get isPrinting() {
         return ['printing'].includes(this.printer_state)
     }
@@ -57,23 +64,26 @@ export default class IdexControl extends Mixins(BaseMixin, ControlMixin) {
         return this.$store.state.printer?.toolhead?.homed_axes ?? ''
     }
 
-    get isIDEX(): boolean {
-        try {
-            const dualCarriage = this.$store.state.printer.configfile?.settings?.dual_carriage
-            if (dualCarriage) return true
-            return false
-        } catch {
-            return false
-        }
+    get idexMode(): string {
+        return this.$store.state.printer.dual_carriage?.carriage_1?.toString().toLowerCase()
     }
 
-    get idexMode(): string {
-        try {
-            const dualCarriage = this.$store.state.printer.configfile?.settings?.dual_carriage
-            return dualCarriage?.carriage_1?.toString().toLowerCase()
-        } catch {
-            return 'error'
+    get primaryColor(): string {
+        return this.$store.state.gui.uiSettings.primary
+    }
+
+    get primaryTextColor(): string {
+        let splits = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(this.primaryColor)
+        if (splits) {
+            const r = parseInt(splits[1], 16) * 0.2126
+            const g = parseInt(splits[2], 16) * 0.7152
+            const b = parseInt(splits[3], 16) * 0.0722
+            const perceivedLightness = (r + g + b) / 255
+
+            return perceivedLightness > 0.7 ? '#222' : '#fff'
         }
+
+        return '#ffffff'
     }
 
     doSend(gcode: string): void {

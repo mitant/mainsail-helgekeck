@@ -61,11 +61,14 @@
                         <v-btn
                             v-for="tool in toolchangeMacros"
                             :key="tool.name"
-                            :class="tool.active ? 'primary--text' : {}"
-                            :disabled="isPrinting"
-                            :style="{ 'background-color': '#' + tool.color }"
-                            dense
+                            :disabled="isPrinting || (isIdex && (idexMode=='copy' || idexMode=='mirror'))"
+                            :loading="loadings.includes(tool.name.toLowerCase())"
                             class="flex-grow-1 px-0"
+                            :style="{
+                                'background-color': tool.active ? primaryColor : '',
+                                color: tool.active ? primaryTextColor : '',
+                            }"
+                            dense
                             @click="doSend(tool.name)">
                             {{ tool.name }}
                         </v-btn>
@@ -481,6 +484,32 @@ export default class ExtruderControlPanel extends Mixins(BaseMixin, ControlMixin
         return this.$store.state.gui.control.extruder.showEstimatedExtrusionInfo
     }
 
+    get primaryColor(): string {
+        return this.$store.state.gui.uiSettings.primary
+    }
+
+    get primaryTextColor(): string {
+        let splits = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(this.primaryColor)
+        if (splits) {
+            const r = parseInt(splits[1], 16) * 0.2126
+            const g = parseInt(splits[2], 16) * 0.7152
+            const b = parseInt(splits[3], 16) * 0.0722
+            const perceivedLightness = (r + g + b) / 255
+
+            return perceivedLightness > 0.7 ? '#222' : '#fff'
+        }
+
+        return '#ffffff'
+    }
+
+    get isIdex(): boolean {
+        return 'dual_carriage' in this.$store.state.printer
+    }
+
+    get idexMode(): string {
+        return this.$store.state.printer.dual_carriage?.carriage_1?.toString().toLowerCase()
+    }
+
     @Watch('maxExtrudeOnlyDistance', { immediate: true })
     onMaxExtrudeOnlyDistanceChange(): void {
         /**
@@ -503,6 +532,11 @@ export default class ExtruderControlPanel extends Mixins(BaseMixin, ControlMixin
         const gcode = `M83\nG1 E${this.feedamount} F${this.feedrate * 60}`
         this.$store.dispatch('server/addEvent', { message: gcode, type: 'command' })
         this.$socket.emit('printer.gcode.script', { script: gcode }, { loading: 'btnDetract' })
+    }
+
+    doSend(gcode: string): void {
+        this.$store.dispatch('server/addEvent', { message: gcode, type: 'command' })
+        this.$socket.emit('printer.gcode.script', { script: gcode }, { loading: gcode.toLowerCase() })
     }
 }
 </script>
