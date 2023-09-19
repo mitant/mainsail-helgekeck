@@ -83,6 +83,8 @@
                 </v-list>
             </v-menu>
         </template>
+        <!-- IDEX CONTROL -->
+        <idex-control v-if="isIdex" class="py-0 pt-3" />
         <!-- MOVE TO CONTROL -->
         <move-to-control class="py-0 pt-3" />
         <!-- AXIS CONTROL -->
@@ -121,6 +123,7 @@ import CircleControl from '@/components/panels/ToolheadControls/CircleControl.vu
 import ControlMixin from '@/components/mixins/control'
 import CrossControl from '@/components/panels/ToolheadControls/CrossControl.vue'
 import MoveToControl from '@/components/panels/ToolheadControls/MoveToControl.vue'
+import IdexControl from '@/components/panels/ToolheadControls/IdexControl.vue'
 import Panel from '@/components/ui/Panel.vue'
 import ToolSlider from '@/components/inputs/ToolSlider.vue'
 import ZoffsetControl from '@/components/panels/ToolheadControls/ZoffsetControl.vue'
@@ -132,6 +135,7 @@ import { mdiDotsVertical, mdiEngineOff, mdiGamepad, mdiSpeedometer, mdiMenuDown,
         CircleControl,
         CrossControl,
         MoveToControl,
+        IdexControl,
         Panel,
         ToolSlider,
         ZoffsetControl,
@@ -169,6 +173,16 @@ export default class ToolheadControlPanel extends Mixins(BaseMixin, ControlMixin
         if (this.controlStyle !== 'bars' && (this.existsZtilt || this.existsQGL)) return true
 
         return this.existsBedScrews || this.existsBedTilt || this.existsDeltaCalibrate || this.existsScrewsTilt
+    }
+
+    get isIdex(): boolean {
+        try {
+            const dualCarriage = this.$store.state.printer.configfile?.settings?.dual_carriage
+            if (dualCarriage) return true
+            return false
+        } catch {
+            return false
+        }
     }
 }
 </script>
