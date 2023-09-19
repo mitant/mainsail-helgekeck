@@ -61,7 +61,7 @@
                         <v-btn
                             v-for="tool in toolchangeMacros"
                             :key="tool.name"
-                            :disabled="isPrinting || (isIdex && (idexMode=='copy' || idexMode=='mirror'))"
+                            :disabled="isPrinting || (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))"
                             :loading="loadings.includes(tool.name.toLowerCase())"
                             class="flex-grow-1 px-0"
                             :style="{
@@ -70,13 +70,14 @@
                             }"
                             dense
                             @click="doSend(tool.name)">
-                            <span>{{ tool.name }}</span>
-                            <v-spacer></v-spacer>
                             <span
                                 v-if="tool.color != null"
-                                class="_currentState"
-                                :style="currentStateStyle"
-                                @click="boolDialog = true"></span>
+                                class="_extruderColorState mr-1"
+                                :style="{
+                                    'border-color': tool.active ? primaryTextColor : '',
+                                    'background-color': '#' + tool.color,
+                                }"></span>
+                            {{tool.name}}
                         </v-btn>
                     </v-item-group>
                 </v-container>
@@ -548,6 +549,13 @@ export default class ExtruderControlPanel extends Mixins(BaseMixin, ControlMixin
 </script>
 
 <style lang="scss" scoped>
+._extruderColorState {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 1px solid lightgray;
+}
+
 ._btn-group {
     border-radius: 4px;
     display: inline-flex;
