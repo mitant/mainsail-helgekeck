@@ -61,7 +61,7 @@
                         <v-btn
                             v-for="tool in toolchangeMacros"
                             :key="tool.name"
-                            :disabled="isPrinting || (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))"
+                            :disabled="isPrinting"
                             :loading="loadings.includes(tool.name.toLowerCase())"
                             class="flex-grow-1 px-0"
                             :style="{
