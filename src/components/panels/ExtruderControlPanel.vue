@@ -65,7 +65,11 @@
                             :loading="loadings.includes(tool.name.toLowerCase())"
                             class="flex-grow-1 px-0"
                             :style="{
-                                'background-color': tool.active ? primaryColor : '',
+                                'background-color': tool.active
+                                    ? homedAxes.includes('xyz')
+                                        ? primaryColor
+                                        : warningColor
+                                    : '',
                                 color: tool.active ? primaryTextColor : '',
                             }"
                             dense
@@ -77,7 +81,7 @@
                                     'border-color': tool.active ? primaryTextColor : '',
                                     'background-color': '#' + tool.color,
                                 }"></span>
-                            {{tool.name}}
+                            {{ tool.name }}
                         </v-btn>
                     </v-item-group>
                 </v-container>
@@ -507,6 +511,10 @@ export default class ExtruderControlPanel extends Mixins(BaseMixin, ControlMixin
         }
 
         return '#ffffff'
+    }
+
+    get warningColor(): string {
+        return this.$vuetify?.theme?.currentTheme?.warning?.toString() ?? '#ff8300'
     }
 
     get isIdex(): boolean {
