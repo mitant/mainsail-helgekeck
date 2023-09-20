@@ -63,7 +63,7 @@
                             :key="tool.name"
                             :disabled="isPrinting"
                             :loading="loadings.includes(tool.name.toLowerCase())"
-                            class="flex-grow-2 px-0"
+                            class="flex-grow-1 px-0"
                             :style="{
                                 'background-color': tool.active
                                     ? homedAxes.includes('xyz')
