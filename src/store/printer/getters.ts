@@ -783,6 +783,8 @@ export const getters: GetterTree<PrinterState, RootState> = {
                     name: macro.name,
                     active: macro.variables.active ?? false,
                     color: macro.variables.color ?? macro.variables.colour ?? null,
+                    title: macro.variables.title ?? null,
+                    filament: macro.variables.filament ?? null,
                 })
             )
 

@@ -253,6 +253,8 @@ export interface PrinterStateToolchangeMacro {
     name: string
     active: boolean
     color: string
+    title: string
+    filament: string
 }
 
 export interface PrinterGetterObject {
