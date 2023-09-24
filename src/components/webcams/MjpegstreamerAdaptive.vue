@@ -200,8 +200,26 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
         return t
     }
 
+    get macros() {
+        return this.$store.getters['printer/getMacros']
+    }
+    
     get toolchangeMacros(): PrinterStateToolchangeMacro[] {
-        return this.$store.getters['printer/getToolchangeMacros']
+        const tools: PrinterStateToolchangeMacro[] = []
+        this.macros
+            .filter((macro: any) => macro.name.toUpperCase().match(/^T\d+/))
+            .forEach((macro: any) =>
+                tools.push({
+                    name: macro.name,
+                    active: macro.variables.active ?? false,
+                    color: macro.variables.color ?? macro.variables.colour ?? null,
+                })
+            )
+        return tools.sort((a, b) => {
+            const numberA = parseInt(a.name.slice(1))
+            const numberB = parseInt(b.name.slice(1))
+            return numberA - numberB
+        })
     }
 
     get activeExtruder(): string {
