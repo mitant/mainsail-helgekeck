@@ -163,9 +163,8 @@ import BaseMixin from '@/components/mixins/base'
 import { GuiWebcamStateWebcam } from '@/store/gui/webcams/types'
 import WebcamMixin from '@/components/mixins/webcam'
 import ControlMixin from '@/components/mixins/control'
-import { PrinterStateLight } from '@/store/printer/types'
 import { mdiLightbulbOutline, mdiLightbulbOnOutline } from '@mdi/js'
-import { PrinterStateToolchangeMacro } from '@/store/printer/types'
+import { PrinterStateLight, PrinterStateToolchangeMacro } from '@/store/printer/types'
 
 @Component
 export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin, ControlMixin) {
