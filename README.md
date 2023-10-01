@@ -1,3 +1,6 @@
+# Mainsail for RatRig V-Core IDEX
+This is a private mainsail fork, not related to RatRig or RatOS. 
+
 <p align="center">
   <a>
     <img src="https://raw.githubusercontent.com/mainsail-crew/docs/master/assets/img/logo.png" alt='Mainsail logo' height="152">
