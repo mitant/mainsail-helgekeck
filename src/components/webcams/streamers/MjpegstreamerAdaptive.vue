@@ -33,7 +33,7 @@
                                     tool.name == activeTool ? 'var(--color-primary)' : 'rgba(0,0,0,0.8)',
                                 color: tool.name == activeTool ? 'var(--v-btn-text-primary)' : 'white',
                             }"
-                            @click="doT('_NOZZLE_CALIBRATION_LOAD_TOOL T=' + tool.name.replace('T', ''))">
+                            @click="doT('_VAOC_LOAD_TOOL T=' + tool.name.replace('T', ''))">
                             {{ tool.name }}
                         </v-btn>
                     </v-item-group>
@@ -270,7 +270,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
 
     probeZ() {
         this.zProbeActive = false
-        this.doSend('_NOZZLE_CALIBRATION_PROBE_Z_OFFSET')
+        this.doSend('_VAOC_PROBE_Z_OFFSET')
     }
 
     doSet() {
@@ -279,7 +279,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
         this.dragStart = { x: 0, y: 0 }
         this.distancePixels = { x: 0, y: 0 }
         this.distanceMM = { x: 0, y: 0 }
-        this.doSend('_NOZZLE_CALIBRATION_SET_TOOL')
+        this.doSend('_VAOC_SET_TOOL')
     }
 
     doT(gcode: string) {
@@ -315,7 +315,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
     private ledActive = 0
     switchLED() {
         this.ledActive = this.ledActive == 0 ? 1 : 0
-        this.doSend('_NOZZLE_CALIBRATION_SWITCH_LED STATE=' + this.ledActive)
+        this.doSend('_VAOC_SWITCH_LED STATE=' + this.ledActive)
     }
 
     get lights() {
@@ -324,10 +324,10 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
 
     get hasLED(): boolean {
         try {
-            let nozzle_calibration_led = this.lights.filter((light: PrinterStateLight) =>
-                light.name.includes('nozzle_calibration_led')
+            let vaoc_led = this.lights.filter((light: PrinterStateLight) =>
+                light.name.includes('vaoc_led')
             )
-            return nozzle_calibration_led?.length == 1
+            return vaoc_led?.length == 1
         } catch {
             return false
         }
