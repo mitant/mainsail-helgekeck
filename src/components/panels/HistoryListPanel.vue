@@ -15,7 +15,7 @@
                             outlined
                             clearable
                             hide-details
-                            dense></v-text-field>
+                            dense />
                     </v-col>
                     <v-col class="offset-4 col-4 d-flex align-center justify-end">
                         <template v-if="selectedJobs.length">
@@ -27,25 +27,30 @@
                                 <v-icon>{{ mdiDelete }}</v-icon>
                             </v-btn>
                         </template>
-                        <v-btn
-                            :title="$t('History.TitleExportHistory')"
-                            class="px-2 minwidth-0 ml-3"
-                            @click="exportHistory">
-                            <v-icon>{{ mdiDatabaseExportOutline }}</v-icon>
-                        </v-btn>
-                        <v-btn
-                            :title="$t('History.TitleRefreshHistory')"
-                            class="px-2 minwidth-0 ml-3"
-                            @click="refreshHistory">
-                            <v-icon>{{ mdiRefresh }}</v-icon>
-                        </v-btn>
-                        <v-menu :offset-y="true" :close-on-content-click="false" title="Setup current list">
+                        <v-tooltip v-if="!allLoaded" top>
                             <template #activator="{ on, attrs }">
                                 <v-btn
+                                    :loading="loadings.includes('historyLoadAll')"
                                     class="px-2 minwidth-0 ml-3"
-                                    :title="$t('History.TitleSettings')"
                                     v-bind="attrs"
-                                    v-on="on">
+                                    v-on="on"
+                                    @click="refreshHistory">
+                                    <v-icon>{{ mdiDatabaseArrowDownOutline }}</v-icon>
+                                </v-btn>
+                            </template>
+                            <span>{{ $t('History.LoadCompleteHistory') }}</span>
+                        </v-tooltip>
+                        <v-tooltip top>
+                            <template #activator="{ on, attrs }">
+                                <v-btn class="px-2 minwidth-0 ml-3" v-bind="attrs" v-on="on" @click="exportHistory">
+                                    <v-icon>{{ mdiDatabaseExportOutline }}</v-icon>
+                                </v-btn>
+                            </template>
+                            <span>{{ $t('History.TitleExportHistory') }}</span>
+                        </v-tooltip>
+                        <v-menu :offset-y="true" :close-on-content-click="false">
+                            <template #activator="{ on, attrs }">
+                                <v-btn class="px-2 minwidth-0 ml-3" v-bind="attrs" v-on="on">
                                     <v-icon>{{ mdiCog }}</v-icon>
                                 </v-btn>
                             </template>
@@ -60,9 +65,9 @@
                                             hide-details
                                             :input-value="status.showInTable"
                                             :label="`${status.displayName} (${status.value})`"
-                                            @change="changeStatusVisible(status)"></v-checkbox>
+                                            @change="changeStatusVisible(status)" />
                                     </v-list-item>
-                                    <v-divider></v-divider>
+                                    <v-divider />
                                 </template>
                                 <v-list-item v-for="header of configHeaders" :key="header.key" class="minHeight36">
                                     <v-checkbox
@@ -70,14 +75,14 @@
                                         class="mt-0"
                                         hide-details
                                         :label="header.text"
-                                        @change="changeColumnVisible(header.value)"></v-checkbox>
+                                        @change="changeColumnVisible(header.value)" />
                                 </v-list-item>
                             </v-list>
                         </v-menu>
                     </v-col>
                 </v-row>
             </v-card-text>
-            <v-divider class="mb-3"></v-divider>
+            <v-divider class="mb-3" />
             <v-data-table
                 v-model="selectedJobs"
                 :items="jobs"
@@ -114,11 +119,11 @@
                                 v-ripple
                                 :value="isSelected"
                                 class="pa-0 mr-0"
-                                @click.stop="select(!isSelected)"></v-simple-checkbox>
+                                @click.stop="select(!isSelected)" />
                         </td>
                         <td class="px-0 text-center" style="width: 32px">
                             <template v-if="!item.exists">
-                                <v-icon class="text--disabled">{{ mdiFile }}-cancel</v-icon>
+                                <v-icon class="text--disabled">{{ mdiFileCancel }}</v-icon>
                             </template>
                             <template v-else-if="getSmallThumbnail(item) && getBigThumbnail(item)">
                                 <v-tooltip top>
@@ -131,10 +136,7 @@
                                                 height="32"
                                                 v-bind="attrs"
                                                 v-on="on" />
-                                            <v-progress-circular
-                                                slot="preloader"
-                                                indeterminate
-                                                color="primary"></v-progress-circular>
+                                            <v-progress-circular slot="preloader" indeterminate color="primary" />
                                             <v-icon slot="error">{{ mdiFile }}</v-icon>
                                         </vue-load-image>
                                     </template>
@@ -144,10 +146,7 @@
                             <template v-else-if="getSmallThumbnail(item)">
                                 <vue-load-image>
                                     <img slot="image" :src="getSmallThumbnail(item)" width="32" height="32" />
-                                    <v-progress-circular
-                                        slot="preloader"
-                                        indeterminate
-                                        color="primary"></v-progress-circular>
+                                    <v-progress-circular slot="preloader" indeterminate color="primary" />
                                     <v-icon slot="error">{{ mdiFile }}</v-icon>
                                 </vue-load-image>
                             </template>
@@ -164,7 +163,7 @@
                                             {{ mdiNotebook }}
                                         </v-icon>
                                     </template>
-                                    <span v-html="item.note.replaceAll('\n', '<br />')"></span>
+                                    <span v-html="item.note.replaceAll('\n', '<br />')" />
                                 </v-tooltip>
                             </template>
                             <v-tooltip top>
@@ -224,6 +223,18 @@
                     <v-icon class="mr-1">{{ mdiPrinter }}</v-icon>
                     {{ $t('History.Reprint') }}
                 </v-list-item>
+                <v-list-item
+                    v-if="contextMenu.item.exists && isJobQueueAvailable"
+                    @click="addToQueue(contextMenu.item)">
+                    <v-icon class="mr-1">{{ mdiPlaylistPlus }}</v-icon>
+                    {{ $t('Files.AddToQueue') }}
+                </v-list-item>
+                <v-list-item
+                    v-if="contextMenu.item.exists && isJobQueueAvailable"
+                    @click="openAddBatchToQueueDialog(contextMenu.item)">
+                    <v-icon class="mr-1">{{ mdiPlaylistPlus }}</v-icon>
+                    {{ $t('Files.AddBatchToQueue') }}
+                </v-list-item>
                 <v-list-item class="red--text" @click="deleteDialog = true">
                     <v-icon class="mr-1" color="error">{{ mdiDelete }}</v-icon>
                     {{ $t('History.Delete') }}
@@ -252,14 +263,14 @@
                             <v-col class="text-right">{{ detailsDialog.item.filename }}</v-col>
                         </v-row>
                         <template v-if="'metadata' in detailsDialog.item && 'size' in detailsDialog.item.metadata">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.Filesize') }}</v-col>
                                 <v-col class="text-right">{{ formatFilesize(detailsDialog.item.metadata.size) }}</v-col>
                             </v-row>
                         </template>
                         <template v-if="'metadata' in detailsDialog.item && 'modified' in detailsDialog.item.metadata">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.LastModified') }}</v-col>
                                 <v-col class="text-right">
@@ -267,7 +278,7 @@
                                 </v-col>
                             </v-row>
                         </template>
-                        <v-divider class="my-3"></v-divider>
+                        <v-divider class="my-3" />
                         <v-row>
                             <v-col>{{ $t('History.Status') }}</v-col>
                             <v-col class="text-right">
@@ -278,13 +289,13 @@
                                 }}
                             </v-col>
                         </v-row>
-                        <v-divider class="my-3"></v-divider>
+                        <v-divider class="my-3" />
                         <v-row>
                             <v-col>{{ $t('History.StartTime') }}</v-col>
                             <v-col class="text-right">{{ formatDateTime(detailsDialog.item.start_time * 1000) }}</v-col>
                         </v-row>
                         <template v-if="'end_time' in detailsDialog.item && detailsDialog.item.end_time > 0">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.EndTime') }}</v-col>
                                 <v-col class="text-right">
@@ -294,7 +305,7 @@
                         </template>
                         <template
                             v-if="'metadata' in detailsDialog.item && 'estimated_time' in detailsDialog.item.metadata">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.EstimatedTime') }}</v-col>
                                 <v-col class="text-right">
@@ -303,7 +314,7 @@
                             </v-row>
                         </template>
                         <template v-if="detailsDialog.item.print_duration > 0">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.PrintDuration') }}</v-col>
                                 <v-col class="text-right">
@@ -312,7 +323,7 @@
                             </v-row>
                         </template>
                         <template v-if="detailsDialog.item.total_duration > 0">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.TotalDuration') }}</v-col>
                                 <v-col class="text-right">
@@ -322,7 +333,7 @@
                         </template>
                         <template
                             v-if="'metadata' in detailsDialog.item && 'filament_total' in detailsDialog.item.metadata">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.EstimatedFilamentWeight') }}</v-col>
                                 <v-col class="text-right">
@@ -332,7 +343,7 @@
                         </template>
                         <template
                             v-if="'metadata' in detailsDialog.item && 'filament_total' in detailsDialog.item.metadata">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.EstimatedFilament') }}</v-col>
                                 <v-col class="text-right">
@@ -341,7 +352,7 @@
                             </v-row>
                         </template>
                         <template v-if="detailsDialog.item.filament_used > 0">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.FilamentUsed') }}</v-col>
                                 <v-col class="text-right">{{ Math.round(detailsDialog.item.filament_used) }} mm</v-col>
@@ -352,7 +363,7 @@
                                 'metadata' in detailsDialog.item &&
                                 'first_layer_extr_temp' in detailsDialog.item.metadata
                             ">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.FirstLayerExtTemp') }}</v-col>
                                 <v-col class="text-right">
@@ -365,7 +376,7 @@
                                 'metadata' in detailsDialog.item &&
                                 'first_layer_bed_temp' in detailsDialog.item.metadata
                             ">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.FirstLayerBedTemp') }}</v-col>
                                 <v-col class="text-right">
@@ -377,7 +388,7 @@
                             v-if="
                                 'metadata' in detailsDialog.item && 'first_layer_height' in detailsDialog.item.metadata
                             ">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.FirstLayerHeight') }}</v-col>
                                 <v-col class="text-right">
@@ -387,7 +398,7 @@
                         </template>
                         <template
                             v-if="'metadata' in detailsDialog.item && 'layer_height' in detailsDialog.item.metadata">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.LayerHeight') }}</v-col>
                                 <v-col class="text-right">{{ detailsDialog.item.metadata.layer_height }} mm</v-col>
@@ -395,14 +406,14 @@
                         </template>
                         <template
                             v-if="'metadata' in detailsDialog.item && 'object_height' in detailsDialog.item.metadata">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.ObjectHeight') }}</v-col>
                                 <v-col class="text-right">{{ detailsDialog.item.metadata.object_height }} mm</v-col>
                             </v-row>
                         </template>
                         <template v-if="'metadata' in detailsDialog.item && 'slicer' in detailsDialog.item.metadata">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.Slicer') }}</v-col>
                                 <v-col class="text-right">{{ detailsDialog.item.metadata.slicer }}</v-col>
@@ -410,7 +421,7 @@
                         </template>
                         <template
                             v-if="'metadata' in detailsDialog.item && 'slicer_version' in detailsDialog.item.metadata">
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" />
                             <v-row>
                                 <v-col>{{ $t('History.SlicerVersion') }}</v-col>
                                 <v-col class="text-right">{{ detailsDialog.item.metadata.slicer_version }}</v-col>
@@ -435,7 +446,7 @@
                     </p>
                 </v-card-text>
                 <v-card-actions>
-                    <v-spacer></v-spacer>
+                    <v-spacer />
                     <v-btn color="" text @click="deleteDialog = false">
                         {{ $t('History.Cancel') }}
                     </v-btn>
@@ -463,7 +474,7 @@
                     </p>
                 </v-card-text>
                 <v-card-actions>
-                    <v-spacer></v-spacer>
+                    <v-spacer />
                     <v-btn color="" text @click="deleteSelectedDialog = false">{{ $t('History.Cancel') }}</v-btn>
                     <v-btn color="error" text @click="deleteSelectedJobs">{{ $t('History.Delete') }}</v-btn>
                 </v-card-actions>
@@ -483,21 +494,22 @@
                 <v-card-text class="pb-0">
                     <v-row>
                         <v-col>
-                            <v-textarea
-                                v-model="noteDialog.note"
-                                outlined
-                                hide-details
-                                :label="$t('History.Note')"></v-textarea>
+                            <v-textarea v-model="noteDialog.note" outlined hide-details :label="$t('History.Note')" />
                         </v-col>
                     </v-row>
                 </v-card-text>
                 <v-card-actions>
-                    <v-spacer></v-spacer>
+                    <v-spacer />
                     <v-btn color="" text @click="noteDialog.boolShow = false">{{ $t('History.Cancel') }}</v-btn>
                     <v-btn color="primary" text @click="saveNote">{{ $t('History.Save') }}</v-btn>
                 </v-card-actions>
             </panel>
         </v-dialog>
+        <add-batch-to-queue-dialog
+            :is-visible="dialogAddBatchToQueue.isVisible"
+            :show-toast="true"
+            :filename="dialogAddBatchToQueue.filename"
+            @close="closeAddBatchToQueueDialog" />
     </div>
 </template>
 
@@ -511,9 +523,10 @@ import { thumbnailBigMin, thumbnailSmallMax, thumbnailSmallMin } from '@/store/v
 import {
     mdiDatabaseExportOutline,
     mdiDelete,
-    mdiRefresh,
+    mdiDatabaseArrowDownOutline,
     mdiCog,
     mdiPrinter,
+    mdiPlaylistPlus,
     mdiTextBoxSearch,
     mdiFile,
     mdiFileDocumentMultipleOutline,
@@ -523,16 +536,20 @@ import {
     mdiNotebookEdit,
     mdiNotebookPlus,
     mdiNotebook,
+    mdiFileCancel,
 } from '@mdi/js'
+import AddBatchToQueueDialog from '@/components/dialogs/AddBatchToQueueDialog.vue'
+
 @Component({
-    components: { Panel },
+    components: { Panel, AddBatchToQueueDialog },
 })
 export default class HistoryListPanel extends Mixins(BaseMixin) {
     mdiDatabaseExportOutline = mdiDatabaseExportOutline
     mdiDelete = mdiDelete
-    mdiRefresh = mdiRefresh
+    mdiDatabaseArrowDownOutline = mdiDatabaseArrowDownOutline
     mdiCog = mdiCog
     mdiPrinter = mdiPrinter
+    mdiPlaylistPlus = mdiPlaylistPlus
     mdiFileDocumentMultipleOutline = mdiFileDocumentMultipleOutline
     mdiTextBoxSearch = mdiTextBoxSearch
     mdiFile = mdiFile
@@ -542,6 +559,7 @@ export default class HistoryListPanel extends Mixins(BaseMixin) {
     mdiNotebookPlus = mdiNotebookPlus
     mdiNotebookEdit = mdiNotebookEdit
     mdiNotebook = mdiNotebook
+    mdiFileCancel = mdiFileCancel
 
     formatFilesize = formatFilesize
 
@@ -562,6 +580,11 @@ export default class HistoryListPanel extends Mixins(BaseMixin) {
         boolShow: false,
     }
 
+    dialogAddBatchToQueue: { isVisible: boolean; filename: string } = {
+        isVisible: false,
+        filename: '',
+    }
+
     private noteDialog: {
         item: ServerHistoryStateJob | null
         note: string
@@ -576,6 +599,10 @@ export default class HistoryListPanel extends Mixins(BaseMixin) {
 
     private deleteDialog = false
     private deleteSelectedDialog = false
+
+    get allLoaded() {
+        return this.$store.state.server.history.all_loaded ?? false
+    }
 
     get jobs() {
         return this.$store.getters['server/history/getFilterdJobList'] ?? []
@@ -784,7 +811,13 @@ export default class HistoryListPanel extends Mixins(BaseMixin) {
         return this.$store.state.gui.general?.language ?? 'en'
     }
 
+    get isJobQueueAvailable() {
+        return this.moonrakerComponents.includes('job_queue')
+    }
+
     refreshHistory() {
+        this.$store.dispatch('socket/addLoading', { name: 'historyLoadAll' })
+
         this.$socket.emit('server.history.list', { start: 0, limit: 50 }, { action: 'server/history/getHistory' })
     }
 
@@ -936,6 +969,21 @@ export default class HistoryListPanel extends Mixins(BaseMixin) {
     startPrint(item: ServerHistoryStateJob) {
         if (item.exists)
             this.$socket.emit('printer.print.start', { filename: item.filename }, { action: 'switchToDashboard' })
+    }
+
+    async addToQueue(item: ServerHistoryStateJob) {
+        await this.$store.dispatch('server/jobQueue/addToQueue', [item.filename])
+
+        this.$toast.info(this.$t('History.AddToQueueSuccessful', { filename: item.filename }).toString())
+    }
+
+    openAddBatchToQueueDialog(item: ServerHistoryStateJob) {
+        this.dialogAddBatchToQueue.isVisible = true
+        this.dialogAddBatchToQueue.filename = item.filename
+    }
+
+    closeAddBatchToQueueDialog() {
+        this.dialogAddBatchToQueue.isVisible = false
     }
 
     deleteJob() {

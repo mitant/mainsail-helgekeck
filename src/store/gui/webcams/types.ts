@@ -26,6 +26,7 @@ export interface GuiWebcamStateWebcam {
     rotation: number
     aspect_ratio?: string
     extra_data?: {
+        enableAudio?: boolean
         hideFps?: boolean
         nozzle_calibration?: boolean
         pixel_per_mm: number
