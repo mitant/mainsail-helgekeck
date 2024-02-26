@@ -4,58 +4,66 @@
             <v-btn
                 class="_btn-qs flex-grow-1 px-1"
                 :disabled="isPrinting || !homedAxes.includes('xyz')"
-                :loading="loadings.includes('activate_single_mode')"
+                :loading="loadings.includes('idex_single')"
                 :style="{
                     'background-color': idexMode != 'copy' && idexMode != 'mirror' ? primaryColor : '',
                     color: idexMode != 'copy' && idexMode != 'mirror' ? primaryTextColor : '',
                 }"
                 dense
-                @click="doSend('ACTIVATE_SINGLE_MODE')">
+                @click="doSend('IDEX_SINGLE')">
                 {{ $t('Panels.ToolheadControlPanel.SingleMode') }}
             </v-btn>
             <v-btn
                 class="_btn-qs flex-grow-1 px-1"
                 :disabled="isPrinting || !homedAxes.includes('xyz')"
-                :loading="loadings.includes('activate_copy_mode')"
+                :loading="loadings.includes('idex_copy')"
                 :style="{
                     'background-color': idexMode == 'copy' ? primaryColor : '',
                     color: idexMode == 'copy' ? primaryTextColor : '',
                 }"
                 dense
-                @click="doSend('ACTIVATE_COPY_MODE')">
+                @click="doSend('IDEX_COPY')">
                 {{ $t('Panels.ToolheadControlPanel.CopyMode') }}
             </v-btn>
             <v-btn
                 class="_btn-qs flex-grow-1 px-1"
                 :disabled="isPrinting || !homedAxes.includes('xyz')"
-                :loading="loadings.includes('activate_mirror_mode')"
+                :loading="loadings.includes('idex_mirror')"
                 :style="{
                     'background-color': idexMode == 'mirror' ? primaryColor : '',
                     color: idexMode == 'mirror' ? primaryTextColor : '',
                 }"
                 dense
-                @click="doSend('ACTIVATE_MIRROR_MODE')">
+                @click="doSend('IDEX_MIRROR')">
                 {{ $t('Panels.ToolheadControlPanel.MirrorMode') }}
             </v-btn>
             <v-btn
                 class="_btn-qs flex-grow-1 px-1"
                 :disabled="isPrinting || !homedAxes.includes('xyz') || idexMode == 'copy' || idexMode == 'mirror'"
-                :loading="loadings.includes('activate_park_mode')"
+                :loading="loadings.includes('idex_park')"
                 dense
-                @click="doSend('ACTIVATE_PARK_MODE')">
+                @click="doSend('IDEX_PARK')">
                 {{ $t('Panels.ToolheadControlPanel.Park') }}
+            </v-btn>
+            <v-btn
+                small
+                class="_btn-qs flex-grow-1 px-1"
+                @click="showSettings()">
+                <v-icon small>{{ mdiCog }}</v-icon>
             </v-btn>
         </v-item-group>
     </v-container>
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { Mixins } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import ControlMixin from '@/components/mixins/control'
+import { mdiCog } from '@mdi/js'
 
-@Component
 export default class IdexControl extends Mixins(BaseMixin, ControlMixin) {
+    mdiCog = mdiCog
+
     get isPrinting() {
         return ['printing'].includes(this.printer_state)
     }
@@ -84,6 +92,9 @@ export default class IdexControl extends Mixins(BaseMixin, ControlMixin) {
         }
 
         return '#ffffff'
+    }
+
+    showSettings(): void {
     }
 
     doSend(gcode: string): void {
