@@ -45,12 +45,6 @@
                 @click="doSend('IDEX_PARK')">
                 {{ $t('Panels.ToolheadControlPanel.Park') }}
             </v-btn>
-            <v-btn
-                small
-                class="_btn-qs flex-grow-1 px-1"
-                @click="showSettings()">
-                <v-icon small>{{ mdiCog }}</v-icon>
-            </v-btn>
         </v-item-group>
     </v-container>
 </template>
@@ -92,9 +86,6 @@ export default class IdexControl extends Mixins(BaseMixin, ControlMixin) {
         }
 
         return '#ffffff'
-    }
-
-    showSettings(): void {
     }
 
     doSend(gcode: string): void {

@@ -293,7 +293,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
 
     get hasZProbe(): boolean {
         try {
-            const zoffsetprobe = this.$store.state.printer.configfile?.settings?.zoffsetprobe
+            const z_offset_probe = this.$store.state.printer.configfile?.settings?.z_offset_probe
             return true
         } catch {
             return false
