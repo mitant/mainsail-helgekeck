@@ -505,6 +505,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
 
     startVAOC() {
         this.ledActive = 1
+        this.xyMove = false
         this.vaoc_started = true
         this.doSend('_VAOC_START')
     }
