@@ -10,13 +10,13 @@
             height="400"
             :style="webcamStyle"
             :class="'webcamImage ' + (isLoaded ? '' : 'hiddenWebcam')"></canvas>
-        <span v-if="isLoaded && showFpsCounter" class="webcamFpsOutput">
+        <!-- <span v-if="isLoaded && showFpsCounter" class="webcamFpsOutput">
             {{ $t('Panels.WebcamPanel.FPS') }}: {{ fpsOutput }}
-        </span>
+        </span> -->
         <v-row v-if="isLoaded && nozzleCalib && bigEnough" align="top" class="ma-0 pa-0">
             <v-col align="left" class="ma-0 pa-0">
                 <span class="cmdButtonsTools">
-                    <v-item-group class="ma-0 _btn-group">
+                    <v-item-group v-if="hasVAOCStarted" class="ma-0 _btn-group">
                         <v-btn
                             v-for="tool in toolchangeMacros"
                             :key="tool.name"
@@ -27,7 +27,7 @@
                                 (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
                             "
                             class="cmdButton"
-                            :loading="loadings.includes('set_' + tool.name.toLowerCase())"
+                            :loading="loadings.includes('_vaoc_load_tool' + tool.name.toLowerCase())"
                             :style="{
                                 'background-color':
                                     tool.name == activeTool ? 'var(--color-primary)' : 'rgba(0,0,0,0.8)',
@@ -39,7 +39,7 @@
                     </v-item-group>
                 </span>
             </v-col>
-            <v-col align="right" class="ma-0 pa-0">
+            <v-col v-if="hasVAOCStarted" align="right" class="ma-0 pa-0">
                 <span class="cmdButtonsZoom">
                     <v-item-group class="ma-0">
                         <v-btn
@@ -99,59 +99,95 @@
             </v-col>
         </v-row>
         <v-row v-if="isLoaded && nozzleCalib && bigEnough" align="bottom" class="ma-0 pa-0">
-            <span class="cmdButtonsControl">
-                <v-item-group class="ma-0">
-                    <v-btn
-                        small
-                        :disabled="
-                            isPrinting ||
-                            !homedAxes.includes('xyz') ||
-                            (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
-                        "
-                        class="cmdButton"
-                        :style="{ 'background-color': 'rgba(0,0,0,0.8)', 'min-width': '0' }"
-                        :loading="loadings.includes('set_cp')"
-                        @click="doSet()">
-                        {{ $t('Panels.WebcamPanel.NozzleCalibrationOverlaySet') }}
-                    </v-btn>
-                    <v-btn
-                        small
-                        class="cmdButton"
-                        :disabled="
-                            isPrinting ||
-                            !homedAxes.includes('xyz') ||
-                            (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
-                        "
-                        :style="{
-                            'background-color': xyMoveMode ? 'var(--color-primary)' : 'rgba(0,0,0,0.8)',
-                            color: xyMoveMode ? 'var(--v-btn-text-primary)' : 'white',
-                        }"
-                        @click="togglexyMove()">
-                        {{
-                            XYMoveOutput == 'MOVE'
-                                ? $t('Panels.WebcamPanel.NozzleCalibrationOverlayMove')
-                                : XYMoveOutput
-                        }}
-                    </v-btn>
-                    <v-btn
-                        v-if="hasZProbe"
-                        small
-                        class="cmdButton"
-                        :disabled="
-                            !allowZProbe ||
-                            !homedAxes.includes('xyz') ||
-                            (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
-                        "
-                        :style="{
-                            'background-color': 'rgba(255,86,86,1.0)',
-                            'min-width': '0',
-                            'border-top-right-radius': '5px',
-                        }"
-                        @click="probeZ()">
-                        {{ $t('Panels.WebcamPanel.NozzleCalibrationOverlayZProbe') }}
-                    </v-btn>
-                </v-item-group>
-            </span>
+            <v-col align="left" class="ma-0 pa-0">
+                <span class="cmdButtonsControl">
+                    <v-item-group v-if="hasVAOCStarted" class="ma-0">
+                        <v-btn 
+                            small
+                            :disabled="
+                                isPrinting ||
+                                !homedAxes.includes('xyz') ||
+                                (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
+                            "
+                            class="cmdButton"
+                            :style="{ 'background-color': 'rgba(0,0,0,0.8)', 'min-width': '0' }"
+                            :loading="loadings.includes('set_cp')"
+                            @click="doSet()">
+                            {{ $t('Panels.WebcamPanel.NozzleCalibrationOverlaySet') }}
+                        </v-btn>
+                        <v-btn 
+                            small
+                            class="cmdButton"
+                            :disabled="
+                                isPrinting ||
+                                !homedAxes.includes('xyz') ||
+                                (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
+                            "
+                            :style="{
+                                'background-color': xyMoveMode ? 'var(--color-primary)' : 'rgba(0,0,0,0.8)',
+                                color: xyMoveMode ? 'var(--v-btn-text-primary)' : 'white',
+                            }"
+                            @click="togglexyMove()">
+                            {{
+                                XYMoveOutput == 'MOVE'
+                                    ? $t('Panels.WebcamPanel.NozzleCalibrationOverlayMove')
+                                    : XYMoveOutput
+                            }}
+                        </v-btn>
+                        <v-btn
+                            v-if="hasZProbe"
+                            small
+                            class="cmdButton"
+                            :disabled="
+                                !allowZProbe ||
+                                !homedAxes.includes('xyz') ||
+                                (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
+                            "
+                            :style="{
+                                'background-color': 'rgba(255,86,86, 1.0)',
+                                'min-width': '0',
+                                'border-top-right-radius': '5px',
+                            }"
+                            @click="probeZ()">
+                            {{ $t('Panels.WebcamPanel.NozzleCalibrationOverlayZProbe') }}
+                        </v-btn>
+                    </v-item-group>
+                </span>
+            </v-col>
+            <v-col align="right" class="ma-0 pa-0">
+                <span class="cmdButtonsStart">
+                    <v-item-group class="ma-0">
+                        <v-btn 
+                            v-if="!hasVAOCStarted"
+                            small
+                            class="cmdButton"
+                            :disabled="isPrinting"
+                            :style="{
+                                'background-color': 'var(--color-primary)',
+                                color: 'var(--v-btn-text-primary)',
+                                'min-width': '0',
+                                'border-top-left-radius': '5px',
+                            }"
+                            @click="startVAOC()">
+                            {{ $t('Panels.WebcamPanel.NozzleCalibrationOverlayStart') }}
+                        </v-btn>
+                        <v-btn 
+                            v-if="hasVAOCStarted"
+                            small
+                            class="cmdButton"
+                            :disabled="isPrinting"
+                            :style="{
+                                'background-color': 'var(--color-primary)',
+                                color: 'var(--v-btn-text-primary)',
+                                'min-width': '0',
+                                'border-top-left-radius': '5px',
+                            }"
+                            @click="stopVAOC()">
+                            {{ $t('Panels.WebcamPanel.NozzleCalibrationOverlayExit') }}
+                        </v-btn>
+                    </v-item-group>
+                </span>
+            </v-col>
         </v-row>
     </div>
 </template>
@@ -306,7 +342,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
 
     get bigEnough() {
         let canvas = this.$refs.mjpegstreamerAdaptive
-        return canvas?.clientWidth >= 480
+        return canvas?.clientWidth >= 400
     }
 
     // ----------------------------------------------
@@ -335,6 +371,28 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
 
     get isLEDTurnedOn(): boolean {
         return this.ledActive == 1
+    }
+
+    // ----------------------------------------------
+    // Start - Stop
+    // ----------------------------------------------
+    private vaoc_started = false
+
+    get hasVAOCStarted(): boolean {
+        return this.vaoc_started
+    }
+
+    startVAOC() {
+        this.ledActive = 1
+        this.vaoc_started = true
+        this.doSend('_VAOC_START')
+    }
+
+    stopVAOC() {
+        this.ledActive = 0
+        this.vaoc_started = false
+        this.zoom("1")
+        this.doSend('_VAOC_END')
     }
 
     // ----------------------------------------------
@@ -531,7 +589,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
         await ctx?.beginPath()
         ctx.lineWidth = 3
         ctx.fillStyle = 'transparent'
-        ctx.strokeStyle = this.isPrinting || !this.homedAxes.includes('xyz') ? '#aaaaaa' : this.primaryColor
+        ctx.strokeStyle = !this.hasVAOCStarted || this.isPrinting || !this.homedAxes.includes('xyz') ? '#aaaaaa' : this.primaryColor
 
         // ----------------------------------------------------------------
         // draw crosshairs circles
@@ -581,6 +639,9 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
     }
 
     get currentZoomFactor() {
+        if (!this.vaoc_started){
+            this.zoomFactor = 1
+        }
         return this.zoomFactor.toString()
     }
 
@@ -800,6 +861,14 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
     position: absolute;
     bottom: 0;
     left: 0;
+    padding: 0px 0px;
+}
+
+.cmdButtonsStart {
+    display: inline-block;
+    position: absolute;
+    bottom: 0;
+    right: 0;
     padding: 0px 0px;
 }
 

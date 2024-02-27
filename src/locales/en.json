@@ -780,6 +780,8 @@
             "NozzleCalibrationOverlayZoom1X": "1X",
             "NozzleCalibrationOverlayZoom2X": "2X",
             "NozzleCalibrationOverlayZoomMAX": "MAX",
+            "NozzleCalibrationOverlayStart": "START VAOC",
+            "NozzleCalibrationOverlayExit": "EXIT VAOC",
             "NozzleCalibrationOverlaySet": "SET",
             "NozzleCalibrationOverlayMove": "MOVE",
             "NozzleCalibrationOverlayZProbe": "Z-PROBE"
