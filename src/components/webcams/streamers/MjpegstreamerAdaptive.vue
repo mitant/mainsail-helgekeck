@@ -435,6 +435,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
         }
     }
 
+    private frame: any = null
     async setFrame() {
         const baseUrl = this.camSettings.snapshot_url
 
@@ -449,22 +450,24 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
         let canvas = this.$refs.mjpegstreamerAdaptive
         if (canvas) {
             const ctx = canvas.getContext('2d')
-            const frame: any = await this.loadImage(url.toString())
+            if (!this.isDragging){
+                this.frame = await this.loadImage(url.toString())
+            }
 
             canvas.width = canvas.clientWidth
             if (this.rotate) {
-                if (this.aspectRatio === null) this.aspectRatio = frame.height / frame.width
+                if (this.aspectRatio === null) this.aspectRatio = this.frame.height / this.frame.width
                 canvas.height = canvas.clientWidth / this.aspectRatio
             } else {
-                if (this.aspectRatio === null) this.aspectRatio = frame.width / frame.height
+                if (this.aspectRatio === null) this.aspectRatio = this.frame.width / this.frame.height
                 canvas.height = canvas.clientWidth / this.aspectRatio
             }
 
-            let imgWidth = frame.width
-            let imgHeight = frame.height
+            let imgWidth = this.frame.width
+            let imgHeight = this.frame.height
             if (this.rotate) {
-                imgWidth = frame.height
-                imgHeight = frame.width
+                imgWidth = this.frame.height
+                imgHeight = this.frame.width
             }
 
             // calculate max zoom
@@ -478,19 +481,19 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
             this.imageOffsetY = this.canvasPixelToFramePixel(this.distancePixels.y)
 
             if (this.rotate) {
-                let scale = (canvas.height / frame.width) * this.zoomFactor
+                let scale = (canvas.height / this.frame.width) * this.zoomFactor
 
                 let x = canvas.width / 2 + this.imageOffsetX
                 let y = canvas.height / 2 + this.imageOffsetY
 
-                let x1 = (-frame.width / 2) * scale
-                let y1 = (-frame.height / 2) * scale
-                let x2 = frame.width * scale
-                let y2 = frame.height * scale
+                let x1 = (-this.frame.width / 2) * scale
+                let y1 = (-this.frame.height / 2) * scale
+                let x2 = this.frame.width * scale
+                let y2 = this.frame.height * scale
 
                 ctx.translate(x, y)
                 ctx.rotate((this.camSettings.rotation * Math.PI) / 180)
-                await ctx?.drawImage(frame, x1, y1, x2, y2)
+                await ctx?.drawImage(this.frame, x1, y1, x2, y2)
                 ctx.rotate(-((this.camSettings.rotation * Math.PI) / 180))
                 ctx.translate(-x, -y)
             } else {
@@ -506,7 +509,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
                 this.imageSizeY = imgHeight / this.zoomFactor
 
                 await ctx?.drawImage(
-                    frame,
+                    this.frame,
                     this.imageStartX,
                     this.imageStartY,
                     this.imageSizeX,
