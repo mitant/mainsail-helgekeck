@@ -15,7 +15,7 @@
         </span> -->
         <v-row v-if="isLoaded && nozzleCalib && bigEnough" align="top" class="ma-0 pa-0">
             <v-col align="left" class="ma-0 pa-0">
-                <span class="cmdButtonsTools">
+                <span class="cmdButtonsTopLeft">
                     <v-item-group v-if="hasVAOCStarted" class="ma-0 _btn-group">
                         <v-btn
                             v-for="tool in toolchangeMacros"
@@ -40,7 +40,7 @@
                 </span>
             </v-col>
             <v-col v-if="hasVAOCStarted" align="right" class="ma-0 pa-0">
-                <span class="cmdButtonsZoom">
+                <span class="cmdButtonsTopRight">
                     <v-item-group class="ma-0">
                         <v-btn
                             small
@@ -100,7 +100,7 @@
         </v-row>
         <v-row v-if="isLoaded && nozzleCalib && bigEnough" align="bottom" class="ma-0 pa-0">
             <v-col align="left" class="ma-0 pa-0">
-                <span class="cmdButtonsControl">
+                <span class="cmdButtonsBottomLeft">
                     <v-item-group v-if="hasVAOCStarted" class="ma-0">
                         <v-btn 
                             small
@@ -155,7 +155,7 @@
                 </span>
             </v-col>
             <v-col align="right" class="ma-0 pa-0">
-                <span class="cmdButtonsStart">
+                <span class="cmdButtonsBottomRight">
                     <v-item-group class="ma-0">
                         <v-btn 
                             v-if="!hasVAOCStarted"
@@ -189,6 +189,122 @@
                 </span>
             </v-col>
         </v-row>
+        <v-row v-if="isLoaded && nozzleCalib && bigEnough && XYMoveOutput != 'MOVE'" align="right" class="ma-0 pa-0">
+            <span class="cmdButtonsRight">
+                <v-item-group v-if="hasVAOCStarted" class="ma-0">
+                    <v-row align="right" class="ma-0 pa-0">
+                        <v-btn
+                            small
+                            :disabled="
+                                isPrinting ||
+                                !homedAxes.includes('xyz') ||
+                                (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
+                            "
+                            class="cmdButton "
+                            :style="{ 'background-color': 'rgba(0,0,0,0.8)', 'min-width': '0', 'border-top-left-radius': '5px' }"
+                            @click="moveZ('1.0')">
+                            <v-icon small>
+                                {{ mdiArrowUpBold }}
+                            </v-icon>
+                            {{ "1.0" }}
+                        </v-btn>
+                    </v-row>
+                    <v-row align="right" class="ma-0 pa-0">
+                        <v-btn
+                            small
+                            :disabled="
+                                isPrinting ||
+                                !homedAxes.includes('xyz') ||
+                                (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
+                            "
+                            class="cmdButton"
+                            :style="{ 'background-color': 'rgba(0,0,0,0.8)', 'min-width': '0' }"
+                            @click="moveZ('0.5')">
+                            <v-icon small>
+                                {{ mdiArrowUpBold }}
+                            </v-icon>
+                            {{ "0.5" }}
+                        </v-btn>
+                    </v-row>
+                    <v-row align="right" class="ma-0 pa-0">
+                        <v-btn
+                            small
+                            :disabled="
+                                isPrinting ||
+                                !homedAxes.includes('xyz') ||
+                                (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
+                            "
+                            class="cmdButton"
+                            :style="{ 'background-color': 'rgba(0,0,0,0.8)', 'min-width': '0' }"
+                            @click="moveZ('0.1')">
+                            <v-icon small>
+                                {{ mdiArrowUpBold }}
+                            </v-icon>
+                            {{ "0.1" }}
+                        </v-btn>
+                    </v-row>
+                    <v-row align="right"
+                        small
+                        class="cmdButton"
+                        :style="{ 'background-color': 'var(--color-primary)', color: 'var(--v-btn-text-primary)', 'min-width': '0', 'height': '20', 'max-height': '20' }">
+                        <span class="focus" >
+                            {{ ZMoveOutput }}
+                        </span>
+                    </v-row>
+                    <v-row align="right" class="ma-0 pa-0">
+                        <v-btn
+                            small
+                            :disabled="
+                                isPrinting ||
+                                !homedAxes.includes('xyz') ||
+                                (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
+                            "
+                            class="cmdButton"
+                            :style="{ 'background-color': 'rgba(0,0,0,0.8)', 'min-width': '0' }"
+                            @click="moveZ('-0.1')">
+                            <v-icon small>
+                                {{ mdiArrowDownBold }}
+                            </v-icon>
+                            {{ "0.1" }}
+                        </v-btn>
+                    </v-row>
+                    <v-row align="right" class="ma-0 pa-0">
+                        <v-btn
+                            small
+                            :disabled="
+                                isPrinting ||
+                                !homedAxes.includes('xyz') ||
+                                (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
+                            "
+                            class="cmdButton"
+                            :style="{ 'background-color': 'rgba(0,0,0,0.8)', 'min-width': '0' }"
+                            @click="moveZ('-0.5')">
+                            <v-icon small>
+                                {{ mdiArrowDownBold }}
+                            </v-icon>
+                            {{ "0.5" }}
+                        </v-btn>
+                    </v-row>
+                    <v-row align="right" class="ma-0 pa-0" >
+                        <v-btn
+                            small
+                            :disabled="
+                                isPrinting ||
+                                !homedAxes.includes('xyz') ||
+                                (isIdex && (idexMode == 'copy' || idexMode == 'mirror'))
+                            "
+                            class="cmdButton"
+                            :style="{ 'background-color': 'rgba(0,0,0,0.8)', 'min-width': '0', 'border-bottom-left-radius': '5px' }"
+                            @click="moveZ('-1.0')">
+                            <v-icon small>
+                                {{ mdiArrowDownBold }}
+                            </v-icon>
+                            {{ "1.0" }}
+                        </v-btn>
+                    </v-row>
+                </v-item-group>
+            </span>
+        </v-row>
     </div>
 </template>
 
@@ -199,13 +315,15 @@ import BaseMixin from '@/components/mixins/base'
 import { GuiWebcamStateWebcam } from '@/store/gui/webcams/types'
 import WebcamMixin from '@/components/mixins/webcam'
 import ControlMixin from '@/components/mixins/control'
-import { mdiLightbulbOutline, mdiLightbulbOnOutline } from '@mdi/js'
+import { mdiLightbulbOutline, mdiLightbulbOnOutline, mdiArrowDownBold, mdiArrowUpBold } from '@mdi/js'
 import { PrinterStateLight, PrinterStateToolchangeMacro } from '@/store/printer/types'
 
 @Component
 export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin, ControlMixin) {
     mdiLightbulbOutline = mdiLightbulbOutline
     mdiLightbulbOnOutline = mdiLightbulbOnOutline
+    mdiArrowDownBold = mdiArrowDownBold
+    mdiArrowUpBold = mdiArrowUpBold
 
     // eslint-disable-next-line no-undef
     private timer: NodeJS.Timeout | undefined = undefined
@@ -318,9 +436,12 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
         this.doSend('_VAOC_SET_TOOL')
     }
 
+    moveZ(z: string) {
+        this.doSend('_VAOC_MOVE Z=' + z)
+    }
+
     doT(gcode: string) {
         this.zProbeActive = false
-        this.xyMove = false
         this.dragStart = { x: 0, y: 0 }
         this.distancePixels = { x: 0, y: 0 }
         this.distanceMM = { x: 0, y: 0 }
@@ -723,13 +844,22 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
     get XYMoveOutput() {
         if (this.xyMove && !this.isPrinting && this.homedAxes.includes('xyz')) {
             return (
-                'Y:' +
+                'Y ' +
                 this.gcodePositions.x.toFixed(5).toString() +
-                ' - X:' +
+                ' X ' +
                 this.gcodePositions.y.toFixed(5).toString()
             )
         }
         return 'MOVE'
+    }
+
+    get ZMoveOutput() {
+        if (this.xyMove && !this.isPrinting && this.homedAxes.includes('xyz')) {
+            return (
+                'Z ' + this.gcodePositions.z.toFixed(3).toString()
+            )
+        }
+        return 'Z'
     }
 
     get nozzleFlipX() {
@@ -832,6 +962,15 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
     width: 100%;
 }
 
+.focus {
+    display: inline-block;
+    position: absolute;
+    padding: 3px 0px;
+    margin: 0px;
+    width: 100%;
+    text-align: center;
+}
+
 .webcamFpsOutput {
     display: inline-block;
     position: absolute;
@@ -842,7 +981,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
     border-top-left-radius: 5px;
 }
 
-.cmdButtonsTools {
+.cmdButtonsTopLeft {
     display: inline-block;
     position: absolute;
     top: 0;
@@ -851,7 +990,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
     margin-right: 200px;
 }
 
-.cmdButtonsZoom {
+.cmdButtonsTopRight {
     display: inline-block;
     position: absolute;
     top: 0;
@@ -859,7 +998,7 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
     padding: 0px 0px;
 }
 
-.cmdButtonsControl {
+.cmdButtonsBottomLeft {
     display: inline-block;
     position: absolute;
     bottom: 0;
@@ -867,7 +1006,17 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
     padding: 0px 0px;
 }
 
-.cmdButtonsStart {
+.cmdButtonsRight {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    padding: 0px 0px;
+}
+
+.cmdButtonsBottomRight {
     display: inline-block;
     position: absolute;
     bottom: 0;
