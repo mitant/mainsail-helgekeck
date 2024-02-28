@@ -13,7 +13,7 @@
         <!-- <span v-if="isLoaded && showFpsCounter" class="webcamFpsOutput">
             {{ $t('Panels.WebcamPanel.FPS') }}: {{ fpsOutput }}
         </span> -->
-        <v-row v-if="isLoaded && nozzleCalib && bigEnough" align="top" class="ma-0 pa-0">
+        <v-row v-if="homedAxes.includes('xyz') && isLoaded && nozzleCalib && bigEnough" align="top" class="ma-0 pa-0">
             <v-col align="left" class="ma-0 pa-0">
                 <span class="cmdButtonsTopLeft">
                     <v-item-group v-if="hasVAOCStarted" class="ma-0 _btn-group">
@@ -101,7 +101,7 @@
         <v-row v-if="isLoaded && nozzleCalib && bigEnough" align="bottom" class="ma-0 pa-0">
             <v-col align="left" class="ma-0 pa-0">
                 <span class="cmdButtonsBottomLeft">
-                    <v-item-group v-if="hasVAOCStarted" class="ma-0">
+                    <v-item-group v-if="homedAxes.includes('xyz') && hasVAOCStarted" class="ma-0">
                         <v-btn 
                             small
                             :disabled="
@@ -158,7 +158,7 @@
                 <span class="cmdButtonsBottomRight">
                     <v-item-group class="ma-0">
                         <v-btn 
-                            v-if="!hasVAOCStarted"
+                            v-if="!hasVAOCStarted || !homedAxes.includes('xyz')"
                             small
                             class="cmdButton"
                             :disabled="isPrinting"
@@ -172,7 +172,7 @@
                             {{ $t('Panels.WebcamPanel.NozzleCalibrationOverlayStart') }}
                         </v-btn>
                         <v-btn 
-                            v-if="hasVAOCStarted"
+                            v-if="hasVAOCStarted && homedAxes.includes('xyz')"
                             small
                             class="cmdButton"
                             :disabled="isPrinting"
@@ -189,7 +189,7 @@
                 </span>
             </v-col>
         </v-row>
-        <v-row v-if="isLoaded && nozzleCalib && bigEnough && XYMoveOutput != 'MOVE'" align="right" class="ma-0 pa-0">
+        <v-row v-if="homedAxes.includes('xyz') && isLoaded && nozzleCalib && bigEnough && XYMoveOutput != 'MOVE'" align="right" class="ma-0 pa-0">
             <span class="cmdButtonsRight">
                 <v-item-group v-if="hasVAOCStarted" class="ma-0">
                     <v-row align="right" class="ma-0 pa-0">
@@ -559,6 +559,10 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
 
     private frame: any = null
     async setFrame() {
+        if (!this.vaoc_started || !this.homedAxes.includes('xyz')){
+            this.zoomFactor = 1
+        }
+
         const baseUrl = this.camSettings.snapshot_url
 
         let url = new URL(baseUrl, this.printerUrl === null ? this.hostUrl.toString() : this.printerUrl)
@@ -764,9 +768,6 @@ export default class MjpegstreamerAdaptive extends Mixins(BaseMixin, WebcamMixin
     }
 
     get currentZoomFactor() {
-        if (!this.vaoc_started){
-            this.zoomFactor = 1
-        }
         return this.zoomFactor.toString()
     }
 
