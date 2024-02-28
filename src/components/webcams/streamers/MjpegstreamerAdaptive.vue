@@ -13,7 +13,7 @@
         <!-- <span v-if="isLoaded && showFpsCounter" class="webcamFpsOutput">
             {{ $t('Panels.WebcamPanel.FPS') }}: {{ fpsOutput }}
         </span> -->
-        <v-row v-if="homedAxes.includes('xyz') && isLoaded && nozzleCalib && bigEnough" align="top" class="ma-0 pa-0">
+        <v-row v-if="homedAxes.includes('xyz') && isLoaded && nozzleCalib && bigEnough && !isPrinting" align="top" class="ma-0 pa-0">
             <v-col align="left" class="ma-0 pa-0">
                 <span class="cmdButtonsTopLeft">
                     <v-item-group v-if="hasVAOCStarted" class="ma-0 _btn-group">
@@ -98,7 +98,7 @@
                 </span>
             </v-col>
         </v-row>
-        <v-row v-if="isLoaded && nozzleCalib && bigEnough" align="bottom" class="ma-0 pa-0">
+        <v-row v-if="isLoaded && nozzleCalib && bigEnough && !isPrinting" align="bottom" class="ma-0 pa-0">
             <v-col align="left" class="ma-0 pa-0">
                 <span class="cmdButtonsBottomLeft">
                     <v-item-group v-if="homedAxes.includes('xyz') && hasVAOCStarted" class="ma-0">
@@ -189,7 +189,7 @@
                 </span>
             </v-col>
         </v-row>
-        <v-row v-if="homedAxes.includes('xyz') && isLoaded && nozzleCalib && bigEnough && XYMoveOutput != 'MOVE'" align="right" class="ma-0 pa-0">
+        <v-row v-if="homedAxes.includes('xyz') && isLoaded && nozzleCalib && bigEnough && XYMoveOutput != 'MOVE' && !isPrinting" align="right" class="ma-0 pa-0">
             <span class="cmdButtonsRight">
                 <v-item-group v-if="hasVAOCStarted" class="ma-0">
                     <v-row align="right" class="ma-0 pa-0">
