@@ -766,9 +766,11 @@
             "ZOffset": "Z-Offset",
             "ZTilt": "Z-Tilt",
             "IdexHeadline": "Idex Toolhead",
-            "SingleMode": "SINGLE MODE",
-            "CopyMode": "COPY MODE",
-            "MirrorMode": "MIRROR MODE",
+            "SingleMode": "SINGLE",
+            "SwappedMode": "SWAPPED",
+            "SpoolJoinMode": "SPOOL JOIN",
+            "CopyMode": "COPY",
+            "MirrorMode": "MIRROR",
             "Park": "PARK"
         },
         "WebcamPanel": {

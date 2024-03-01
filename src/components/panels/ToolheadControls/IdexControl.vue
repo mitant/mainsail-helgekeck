@@ -4,43 +4,54 @@
             <v-btn
                 class="_btn-qs flex-grow-1 px-1"
                 :disabled="isPrinting || !homedAxes.includes('xyz')"
-                :loading="loadings.includes('idex_single')"
                 :style="{
                     'background-color': idexMode != 'copy' && idexMode != 'mirror' ? primaryColor : '',
                     color: idexMode != 'copy' && idexMode != 'mirror' ? primaryTextColor : '',
                 }"
                 dense
-                @click="doSend('IDEX_SINGLE')">
-                {{ $t('Panels.ToolheadControlPanel.SingleMode') }}
+                @click="setSingleMode()">
+                {{ 
+                    isSwapped && homedAxes.includes('xyz')
+                        ? $t('Panels.ToolheadControlPanel.SwappedMode') 
+                        : $t('Panels.ToolheadControlPanel.SingleMode')
+                }}
+            </v-btn>
+            <v-btn
+                class="_btn-qs flex-grow-1 px-1"
+                :disabled="isPrinting || !homedAxes.includes('xyz') || idexMode == 'copy' || idexMode == 'mirror'"
+                :style="{
+                    'background-color': isSpoolJoin && idexMode != 'copy' && idexMode != 'mirror' ? primaryColor : '',
+                    color: isSpoolJoin && idexMode != 'copy' && idexMode != 'mirror' ? primaryTextColor : '',
+                }"
+                dense
+                @click="setSpoolMode()">
+                {{ $t('Panels.ToolheadControlPanel.SpoolJoinMode') }}
             </v-btn>
             <v-btn
                 class="_btn-qs flex-grow-1 px-1"
                 :disabled="isPrinting || !homedAxes.includes('xyz')"
-                :loading="loadings.includes('idex_copy')"
                 :style="{
                     'background-color': idexMode == 'copy' ? primaryColor : '',
                     color: idexMode == 'copy' ? primaryTextColor : '',
                 }"
                 dense
-                @click="doSend('IDEX_COPY')">
+                @click="setCopyMode()">
                 {{ $t('Panels.ToolheadControlPanel.CopyMode') }}
             </v-btn>
             <v-btn
                 class="_btn-qs flex-grow-1 px-1"
                 :disabled="isPrinting || !homedAxes.includes('xyz')"
-                :loading="loadings.includes('idex_mirror')"
                 :style="{
                     'background-color': idexMode == 'mirror' ? primaryColor : '',
                     color: idexMode == 'mirror' ? primaryTextColor : '',
                 }"
                 dense
-                @click="doSend('IDEX_MIRROR')">
+                @click="setMirrorMode()">
                 {{ $t('Panels.ToolheadControlPanel.MirrorMode') }}
             </v-btn>
             <v-btn
                 class="_btn-qs flex-grow-1 px-1"
                 :disabled="isPrinting || !homedAxes.includes('xyz') || idexMode == 'copy' || idexMode == 'mirror'"
-                :loading="loadings.includes('idex_park')"
                 dense
                 @click="doSend('IDEX_PARK')">
                 {{ $t('Panels.ToolheadControlPanel.Park') }}
@@ -53,17 +64,19 @@
 import { Mixins } from 'vue-property-decorator'
 import BaseMixin from '@/components/mixins/base'
 import ControlMixin from '@/components/mixins/control'
-import { mdiCog } from '@mdi/js'
 
 export default class IdexControl extends Mixins(BaseMixin, ControlMixin) {
-    mdiCog = mdiCog
-
     get isPrinting() {
         return ['printing'].includes(this.printer_state)
     }
 
     get homedAxes(): string {
-        return this.$store.state.printer?.toolhead?.homed_axes ?? ''
+        let result = this.$store.state.printer?.toolhead?.homed_axes ?? ''
+        if (result == '') {
+            this.swapped = false
+            this.spoolJoin = false
+        }
+        return result
     }
 
     get idexMode(): string {
@@ -86,6 +99,43 @@ export default class IdexControl extends Mixins(BaseMixin, ControlMixin) {
         }
 
         return '#ffffff'
+    }
+
+    swapped = false
+    get isSwapped(): boolean {
+        return this.swapped
+    }
+
+    setSingleMode(): void {
+        if (this.idexMode != 'copy' && this.idexMode != 'mirror'){
+            this.swapped = !this.swapped
+        }
+        this.doSend("IDEX_SWAP_TOOLHEADS ENABLE=" + this.swapped.toString().toLowerCase())
+        this.doSend("IDEX_SINGLE")
+        this.$forceUpdate()
+    }
+
+    spoolJoin = false
+    get isSpoolJoin(): boolean {
+        return this.spoolJoin
+    }
+
+    setSpoolMode(): void {
+        this.spoolJoin = !this.spoolJoin
+        this.doSend("IDEX_SPOOL_JOIN ENABLE=" + this.spoolJoin.toString().toLowerCase())
+        this.$forceUpdate()
+    }
+
+    setCopyMode(): void {
+        this.swapped = false
+        this.spoolJoin = false
+        this.doSend("IDEX_COPY")
+    }
+
+    setMirrorMode(): void {
+        this.swapped = false
+        this.spoolJoin = false
+        this.doSend("IDEX_MIRROR")
     }
 
     doSend(gcode: string): void {
@@ -128,7 +178,6 @@ export default class IdexControl extends Mixins(BaseMixin, ControlMixin) {
         border-top-right-radius: inherit;
         border-bottom-right-radius: inherit;
     }
-
     .v-btn:not(:first-child) {
         border-left-width: 0;
     }
