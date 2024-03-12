@@ -34,7 +34,7 @@ export const getDefaultState = (): GuiState => {
             hideDuringPrint: false,
             enableXYHoming: false,
             feedrateXY: 100,
-            stepsXY: [100, 10, 1],
+            stepsXY: [50, 25, 1, 0.1],
             feedrateZ: 25,
             offsetsZ: [0.005, 0.01, 0.025, 0.05],
             offsetZSaveOption: null,
